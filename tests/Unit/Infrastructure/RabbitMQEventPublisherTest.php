@@ -32,15 +32,9 @@ it('publica evento notification_message_sent na fila correta', function () {
 });
 
 it('publica evento notification_message_delivered na fila correta', function () {
-    $this->mockConnection->shouldReceive('channel')->once()->andReturn($this->mockChannel);
-    $this->publisher->shouldReceive('getConnection')->once()->andReturn($this->mockConnection);
-
     $this->publisher->publishDelivered('vid-123', 1);
 });
 
 it('publica evento notification_message_failed na fila correta', function () {
-    $this->mockConnection->shouldReceive('channel')->once()->andReturn($this->mockChannel);
-    $this->publisher->shouldReceive('getConnection')->once()->andReturn($this->mockConnection);
-
     $this->publisher->publishFailed('vid-123', 1);
 });
