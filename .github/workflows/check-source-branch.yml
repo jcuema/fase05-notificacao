@@ -1,0 +1,28 @@
+name: check-source-branch.yml
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-branch-name:
+    name: "Verificar Branch de Origem"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Verifica se a branch de origem é 'develop'"
+        run: |
+          echo "Verificando PR..."
+          echo "Branch de destino (base): ${{ github.base_ref }}"
+          echo "Branch de origem (head): ${{ github.head_ref }}"
+
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "------------------------------------------------------------------"
+            echo "ERRO: Pull Requests para a branch 'main' só são permitidos a partir da branch 'develop'."
+            echo "Por favor, abra um PR da sua branch para a 'develop' primeiro."
+            echo "------------------------------------------------------------------"
+            exit 1
+          else
+            echo "OK: Pull Request da 'develop' para 'main' está autorizado."
+            exit 0
+          fi
