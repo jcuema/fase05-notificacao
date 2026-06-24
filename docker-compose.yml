@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+    rabbitmq:
+        image: rabbitmq:4-management-alpine
+        container_name: notificacao_rabbitmq
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: notificacao_postgres
+        ports:
+            - "5433:5432"
+        environment:
+            POSTGRES_DB: notificacao
+            POSTGRES_USER: notificacao
+            POSTGRES_PASSWORD: secret
+        volumes:
+            - notificacao_pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U notificacao"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: notificacao_mailpit
+        ports:
+            - "1025:1025"   # SMTP
+            - "8025:8025"   # Web UI — http://localhost:8025
+        environment:
+            MP_MAX_MESSAGES: 500
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+volumes:
+    notificacao_pgdata:
