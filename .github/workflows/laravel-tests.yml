@@ -1,0 +1,41 @@
+name: Executar Testes do Laravel
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  laravel-tests:
+    name: Testes Automatizados (PHP & SQLite)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar Ambiente PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, zip, sqlite3, pdo_sqlite
+        coverage: none
+
+    - name: Instalar Dependências do Composer
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      env:
+        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
+    - name: Preparar Ambiente de Teste
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+
+    - name: Executar os Testes
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: ":memory:"
+        BCRYPT_ROUNDS: 4
+        CACHE_STORE: array
+        SESSION_DRIVER: array
+        QUEUE_CONNECTION: sync
+      run: php artisan test
